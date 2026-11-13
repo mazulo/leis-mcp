@@ -8,7 +8,8 @@ from .. import messages
 from ..legal_text.labels import Label
 from ..legal_text.notices import NormNotices
 from ..legal_text.validity import NormValidity, TextWording
-from ..models import Excerpt, LoadedNorm, Norm, Reference, SearchMatch, SourceField, Validity, Wording
+from ..models import Excerpt, LoadedNorm, Norm, Reference, SearchMatch, SourceField, Validity, ValidityState, Wording
+from ..online import OnlineResult
 from ..search.pattern import AccentInsensitivePattern
 
 
@@ -57,7 +58,7 @@ class NormPresenter:
             "aviso_legal": messages.LEGAL_NOTICE,
         }
 
-    def provision(self, loaded: LoadedNorm, excerpt: Excerpt) -> dict[str, Any]:
+    def provision(self, loaded: LoadedNorm, excerpt: Excerpt, online: OnlineResult) -> dict[str, Any]:
         provision: dict[str, Any] = {"citacao": excerpt.citation, "texto": excerpt.text}
         if excerpt.head:
             provision["caput"] = excerpt.head
@@ -66,13 +67,14 @@ class NormPresenter:
         if excerpt.status:
             status = excerpt.status
             provision["situacao"] = {"revogado": status.revoked, "vetado": status.vetoed, "nota": status.note}
-        validity, wording = self._validity(loaded), self._wording(loaded)
+        validity, wording = self._validity(loaded, online.state), self._wording(loaded)
         return {
             "norma": self.norm(loaded.norm, loaded.metadata),
             "dispositivo": provision,
             "vigencia": self._validity_payload(validity),
             "redacao": self._wording_payload(wording),
-            "avisos": [*NormNotices.for_norm(validity, wording), *excerpt.notices],
+            "vigencia_online": online.payload,
+            "avisos": [*NormNotices.for_norm(validity, wording), *excerpt.notices, *online.notices],
             "fonte": loaded.metadata.get(SourceField.SOURCE_URL),
             "aviso_legal": messages.LEGAL_NOTICE,
         }
@@ -130,8 +132,12 @@ class NormPresenter:
         return item | {"vigencia": str(self._validity(loaded).state)}
 
     @staticmethod
-    def _validity(loaded: LoadedNorm) -> Validity:
-        return NormValidity.read(loaded.metadata, loaded.document.lines)
+    def _validity(loaded: LoadedNorm, online: ValidityState | None = None) -> Validity:
+        validity = NormValidity.read(loaded.metadata, loaded.document.lines)
+        if online is None:
+            return validity
+        state = NormValidity.combine({validity.state, online})
+        return Validity(state, validity.fields, validity.repealed_by, f"{validity.origin}+online")
 
     def _wording(self, loaded: LoadedNorm) -> Wording:
         return TextWording.read(loaded.metadata, self._commit)

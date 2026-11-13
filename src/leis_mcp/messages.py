@@ -8,8 +8,12 @@ LEGAL_NOTICE = (
 SERVER_INSTRUCTIONS = """\
 Acesso à legislação brasileira do repositório público ctresb/leis (Markdown convertido de fontes oficiais).
 Antes de responder perguntas jurídicas, localize a norma (`buscar_norma`) e leia o dispositivo exato
-(`ler_artigo`). Cite o texto literalmente, informe o link `fonte` e repasse os `avisos` (norma revogada,
-texto não compilado, dispositivo revogado). O texto é conversão automática e não substitui o Diário Oficial.
+(`ler_artigo`). Cite o texto literalmente, informe o link `fonte` e repasse os `avisos`.
+Antes de citar, confira `vigencia` (o que o acervo diz da norma), `redacao` (texto compilado ou original e
+data da captura), `dispositivo.situacao` e, para normas federais, `vigencia_online` (normas.leg.br e Senado,
+com as redações e alterações do dispositivo). Nenhuma fonte afirma vigência por omissão:
+`sem_revogacao_registrada` e `nao_informada` NÃO significam que a norma está vigente; diga isso ao usuário.
+O texto é conversão automática e não substitui o Diário Oficial.
 Apelidos aceitos: CF/constituição, ADCT, CC/código civil, CPC, CP/código penal, CPP, CLT, CDC,
 lei do inquilinato, lei dos juizados, CTN, ECA, LGPD e outros (recurso leis://apelidos).
 """
@@ -100,10 +104,54 @@ VALIDITY_SUMMARIES = {
 }
 VALIDITY_ORIGINS = {
     "acervo": "acervo ctresb/leis (cabeçalho e texto da norma)",
+    "acervo+online": "acervo ctresb/leis e consulta online (`vigencia_online`)",
 }
 WORDING_CONSOLIDATED = "Texto compilado (redação vigente na data da captura), não a publicação original."
 WORDING_ORIGINAL = "Texto da publicação original: alterações posteriores podem não estar refletidas."
 WORDING_UNKNOWN = "A fonte não informa se o texto é compilado ou original."
+
+# Online validity lookup (federal norms)
+ONLINE_SOURCES = {"normas_leg": "normas.leg.br", "senado": "Senado Federal (dados abertos)"}
+ONLINE_DISABLED = "Consulta online desligada (LEIS_MCP_OFFLINE=1)."
+ONLINE_FEDERAL_ONLY = "Consulta online disponível só para normas federais com URN."
+ONLINE_UNAVAILABLE = "Consulta online indisponível agora ({details}). Use os dados do acervo e confira na fonte."
+ONLINE_NOT_IN_FORCE = "ATENÇÃO: o normas.leg.br informa que a norma não está em vigor{repealed_by}."
+ONLINE_REVOKED_SENADO = "ATENÇÃO: o Senado Federal marca a norma como revogada."
+ONLINE_PROVISION_REVOKED = "ATENÇÃO: o {source} registra este dispositivo como revogado{by}."
+ONLINE_PROVISION_CHANGED = (
+    "O {source} registra alteração deste dispositivo{by}. Detalhes em `vigencia_online.dispositivo`."
+)
+ONLINE_UNCONSTITUTIONAL = "O {source} registra decisão sobre a constitucionalidade deste dispositivo."
+ONLINE_NO_PROVISION_DATA = "A fonte online não tem o histórico deste dispositivo."
+ONLINE_STALE = (
+    "As fontes online não responderam agora: os dados de `vigencia_online` são da consulta de {date} e podem estar "
+    "desatualizados."
+)
+ONLINE_NOT_FOUND = "A norma não consta nas fontes online consultadas (normas.leg.br, Senado Federal)."
+ONLINE_BY = " pela {law}"
+ONLINE_REPEALED_BY = " (revogada por {laws})"
+ONLINE_SUMMARY_NOT_IN_FORCE = "normas.leg.br: a norma não está em vigor."
+ONLINE_SUMMARY_REVOKED = "Senado Federal: a norma consta como revogada."
+ONLINE_SUMMARY_NO_MARK = (
+    "As fontes online não marcam a norma como fora de vigor. Elas só marcam o que saiu de vigor, "
+    "então isso não confirma vigência."
+)
+PROVISION_STATES = {
+    "revoked": "revogado",
+    "changed": "alterado",
+    "original": "redação original, sem alterações registradas",
+    "no_events": "sem eventos registrados no Senado",
+    "unknown": "sem dados",
+}
+VERSION_KINDS = {
+    "Original_Version": "redação original",
+    "Text_Change_Version": "alteração de texto",
+    "Repeal_Version": "revogação",
+    "Insertion_Version": "inclusão",
+    "Suppression_Version": "supressão",
+    "Applicability_Suppression_Version": "suspensão de aplicabilidade",
+    "Vetoed_Text_Change_Version": "alteração vetada",
+}
 
 # Text search and browsing
 QUERY_TOO_SHORT = "A consulta precisa ter ao menos {minimum} caracteres."

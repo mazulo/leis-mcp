@@ -141,6 +141,7 @@ def test_repealed_article_names_the_repealing_law(service):
     response = service.read_provision("CLT", "17")
     assert response["dispositivo"]["situacao"]["nota"] == "Revogado pela Lei nº 13.874, de 20/9/2019"
     assert response["vigencia"]["estado"] == "sem_revogacao_registrada"
+    assert response["vigencia_online"]["disponivel"] is False
 
 
 def test_word_revoked_in_the_text_is_not_a_repeal(service):
@@ -169,6 +170,7 @@ def test_state_status_from_the_source(service):
     response = service.read_provision(path, "1")
     assert response["vigencia"]["estado"] == "sem_revogacao_registrada"
     assert response["vigencia"]["campos"]["situacao"] == "Sem Revogação Expressa"
+    assert response["vigencia_online"]["disponivel"] is False
 
 
 def test_text_search_and_browse_show_validity(service):
@@ -178,3 +180,15 @@ def test_text_search_and_browse_show_validity(service):
     page = service.browse("federal", "leis-complementares", 2006)["normas"]
     listed = next(norm for norm in page if norm["caminho"] == "federal/leis-complementares/2006/lcp-123-2006-12-14.md")
     assert listed["vigencia"] == "sem_revogacao_registrada"
+
+
+def test_live_online_validity(online_service):
+    clause = online_service.read_provision("código civil", "3", clause="I")["vigencia_online"]
+    assert clause["disponivel"] is True
+    assert clause["dispositivo"]["situacao"] == "revogado"
+    assert clause["dispositivo"]["versoes"][-1]["alterado_por"].startswith("Lei nº 13.146")
+    repealed_law = online_service.read_provision("8666/1993", "1")
+    assert repealed_law["vigencia_online"]["norma"]["forca_legal"] == "NotInForce"
+    assert repealed_law["vigencia"]["origem"].startswith("acervo ctresb/leis e consulta online")
+    labour = online_service.read_provision("CLT", "17")["vigencia_online"]["dispositivo"]
+    assert labour["situacao"] == "revogado"
