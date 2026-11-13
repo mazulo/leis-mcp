@@ -14,6 +14,7 @@ from ..content.store import ContentStore
 from ..errors import ProvisionNotFoundError, QueryError
 from ..legal_text.extractor import ProvisionExtractor
 from ..models import LoadedNorm, Norm, NormQuery, Occurrence, SearchMatch, SourceField
+from ..online import OnlineValidity
 from ..references.parser import ReferenceParser
 from ..search.text_search import TextSearch
 from .loader import NormLoader
@@ -45,6 +46,7 @@ class LegislationService:
         presenter: NormPresenter,
         search: TextSearch,
         data_dir: Path,
+        online: OnlineValidity,
     ):
         self._index = index
         self._references = references
@@ -54,13 +56,15 @@ class LegislationService:
         self._presenter = presenter
         self._search = search
         self._data_dir = data_dir
+        self._online = online
 
     @classmethod
     def from_settings(cls, settings: Settings, repository: GitRepository | None = None) -> Self:
         index = NormIndex(settings)
         store = ContentStore(settings, index.commit, repository or GitRepository(settings))
         presenter = NormPresenter(settings.blob_base_url, index.commit)
-        return cls(index, ReferenceParser(), store, presenter, TextSearch(), settings.home)
+        online = OnlineValidity(settings)
+        return cls(index, ReferenceParser(), store, presenter, TextSearch(), settings.home, online)
 
     def find_norms(
         self,
@@ -107,7 +111,7 @@ class LegislationService:
             excerpt = extractor.extract(article, paragraph, clause, subclause, block or reference.block)
         except ProvisionNotFoundError as exc:
             raise exc.in_norm(loaded.title) from exc
-        return self._presenter.provision(loaded, excerpt)
+        return self._presenter.provision(loaded, excerpt, self._online.for_provision(loaded, excerpt))
 
     def search_text(
         self,
