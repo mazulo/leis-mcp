@@ -73,12 +73,37 @@ CONSTITUTION_TEXT_VERSION = "compilada (texto compilado do Planalto)"
 
 # Notices
 STRUCK_TEXT = "O trecho contém texto tachado (dispositivo revogado ou alterado) no original."
-MENTIONS_REPEAL = "O texto do dispositivo menciona revogação: confira se o trecho está vigente."
-MENTIONS_VETO = "O texto do dispositivo menciona veto."
-NORM_REVOKED = "ATENÇÃO: a norma está marcada como REVOGADA (revogada: true)."
+PROVISION_REVOKED = "ATENÇÃO: este dispositivo está REVOGADO segundo o próprio texto: {note}."
+PROVISION_VETOED = "Este dispositivo foi vetado: {note}."
+PARTS_REVOKED = "O trecho contém {count} dispositivo(s) marcado(s) como revogado(s) no texto."
+NORM_REVOKED = "ATENÇÃO: a norma está marcada como REVOGADA na fonte."
+NORM_REVOKED_BY = "ATENÇÃO: a norma está marcada como REVOGADA na fonte ({repealed_by})."
+NORM_NOT_IN_FORCE = "ATENÇÃO: a fonte informa que a norma NÃO está em vigor ({fields})."
+VALIDITY_CONFLICT = "As fontes divergem sobre a vigência da norma ({fields}): confira na fonte oficial."
 SOURCE_STATUS = "Situação informada na fonte: {status}."
+VALIDITY_UNKNOWN = "A fonte não informa se a norma está vigente: não presuma que está."
 NOT_CONSOLIDATED = "O texto NÃO é a versão compilada/vigente (versao_texto: {version!r}); pode estar desatualizado."
 UNKNOWN_VERSION = "A fonte não informa se o texto é a versão compilada (vigente)."
+
+# Validity and wording summaries, per `ValidityState`
+VALIDITY_SUMMARIES = {
+    "revogada": "A fonte marca a norma como revogada.",
+    "sem_vigencia_na_fonte": "A fonte informa que a norma não está em vigor.",
+    "vigente_segundo_a_fonte": "A fonte informa que a norma está em vigor.",
+    "sem_revogacao_registrada": (
+        "A fonte não registra revogação expressa. Isso não confirma vigência: pode haver revogação tácita, "
+        "decisão judicial ou norma posterior."
+    ),
+    "outra": "A fonte informa uma situação específica (veja `situacao` em `campos`).",
+    "nao_informada": "A fonte não informa a vigência desta norma. Não presuma que está vigente.",
+    "conflitante": "Os campos da fonte divergem sobre a vigência. Confira na fonte oficial.",
+}
+VALIDITY_ORIGINS = {
+    "acervo": "acervo ctresb/leis (cabeçalho e texto da norma)",
+}
+WORDING_CONSOLIDATED = "Texto compilado (redação vigente na data da captura), não a publicação original."
+WORDING_ORIGINAL = "Texto da publicação original: alterações posteriores podem não estar refletidas."
+WORDING_UNKNOWN = "A fonte não informa se o texto é compilado ou original."
 
 # Text search and browsing
 QUERY_TOO_SHORT = "A consulta precisa ter ao menos {minimum} caracteres."
