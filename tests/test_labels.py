@@ -25,6 +25,9 @@ def test_article_parse(value, expected):
         ("**Art. 4º-A.** Caput", "4-A"),
         ("**Art. 1.000.** Caput", "1000"),
         ("Art. l97. Caput", "197"),
+        ("**Art**. 1º Caput", "1"),
+        ("**Art.** 3º Caput", "3"),
+        ("**Art**. 2º-A. Caput", "2-A"),
         ("Arts. 1º e 2º revogados", None),
         ("Texto qualquer", None),
     ],
@@ -53,10 +56,17 @@ def test_clause_parse(value, expected):
     [
         (ParagraphLabel, "**§ 2°** Texto", "2"),
         (ParagraphLabel, "**Parágrafo único.** Texto", "unico"),
+        (ParagraphLabel, "**§** 1º Texto", "1"),
+        (ParagraphLabel, "**Parágrafo** único. Texto", "unico"),
         (ClauseLabel, "II – texto", "II"),
         (ClauseLabel, "IV- texto", "IV"),
+        (ClauseLabel, "**I -** texto", "I"),
+        (ClauseLabel, "**I** - texto", "I"),
         (ClauseLabel, "CLT - texto", None),
+        (ClauseLabel, "**CLT** - texto", None),
         (SubclauseLabel, "b) texto", "b"),
+        (SubclauseLabel, "**a)** texto", "a"),
+        (SubclauseLabel, "**a**) texto", "a"),
     ],
 )
 def test_unit_from_line(label, line, expected):
