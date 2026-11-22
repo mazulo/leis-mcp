@@ -18,7 +18,8 @@ from ..text import TextNormalizer
 class Label(ABC):
     """A provision label: parses user input and recognizes the label at the start of a source line."""
 
-    _MARKUP = re.compile(r"^\s*[*_]+\s*")
+    # Markup at the start of the line and inside the label: "**Art**. 1º", "**§** 1º", "**I** -", "**a**)"
+    _MARKUP = re.compile(r"^\s*[*_]+\s*|[*_]+")
     # Ordinal marker and letter suffix right after a number: "º-A.", "o", ".º"
     _SUFFIX = re.compile(r"^\s*(?:\.?\s*[º°ª]|o(?![a-zà-ú]))?\s*\.?\s*(?P<suffix>(?:-[A-Z](?![a-zà-ú]))*)")
 
